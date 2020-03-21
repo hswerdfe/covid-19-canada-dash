@@ -5,6 +5,19 @@ G_PROJ4DEF <- '+proj=lcc +lat_1=49 +lat_2=77 +lat_0=49 +lon_0=-95 +x_0=0 +y_0=0 
 G_CRS_CODE <- 'EPSG:3978'
 
 
+
+#####################3
+#
+# This is supposed to let me color the points on the leaflet map but it is not working 
+#
+pal <- leaflet::colorNumeric(viridis_pal(option = "C")(10), domain = 1:300)
+
+
+
+#####################################333
+#
+# Aggregate points and resize for the leaflet plot
+#
 aggregate_points <- function(data_points, round_digit = 0, size_adjust = 10000){
   data_points %>% 
     select(Long, Lat, City) %>% 
@@ -18,7 +31,46 @@ aggregate_points <- function(data_points, round_digit = 0, size_adjust = 10000){
 
 
 
+get_prov_shp <- function(){
+  canada_HR_shp <- read_sf(file.path("HR000b11a_e_Oct2013_simp.geojson")) %>% 
+    st_transform(canada_shp, crs = G_PROJ4DEF)
+}
 
+get_hr_shp <- function(){
+  shp <- read_sf(file.path("HR000b11a_e_Oct2013_simp.geojson")) %>% 
+    st_transform(shp, crs = G_PROJ4DEF)
+}
+get_pr_shp <- function(){
+  shp <- read_sf(file.path("canada_pt_sim.geojson")) %>% 
+    st_transform(shp, crs = G_PROJ4DEF)
+}
+
+
+canada_HR_shp %>% 
+  ggplot() +
+  geom_sf() +
+  theme_map()
+
+
+
+canada_prov_shp <- read_sf(file.path("canada_pt_sim.geojson")) %>% 
+  st_transform(canada_shp, crs = G_PROJ4DEF)
+
+
+canada_prov_shp %>% 
+  ggplot() +
+  geom_sf(alpha = 0, size = 1.25, color = "black") +
+  theme_map()
+
+
+
+
+
+
+##########################333
+#
+# Get a BASE leaflet map
+#
 get_leaflet_map <- function(){
 
   bnds =  c(-7786476.885838887,
@@ -78,7 +130,7 @@ get_leaflet_map <- function(){
                                         crs = epsg3978,
                                         minZoom = 2, maxZoom = 17)
   ) %>%
-    addTiles(urlTemplate = urlTemplate,
+    addTiles(urlTemplate = urlTemplate,#x
              attribution = tile_attrib,
              options = tileOptions(continuousWorld = F)
     ) %>% 
